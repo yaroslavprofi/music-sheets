@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="client.js"></script>
+    <link rel="stylesheet" href="styles_test.css">
+    <title>Music Sheet Html</title>
+</head>
+<body>
+<header>
+    <div class="menu-item" style="margin-left: 42px;">
+        <span class="name-aside" style="color:  #f6f6f6;font-size: 55px">Music Sheets</span>
+    </div>
+</header>
+<div style="display: flex;">
+    <aside>
+        <div class="menu-item-aside">
+            <h3 class="name-aside" style="text-align: center;">Sort by</h3>
+            <div style="text-align: center;">
+                <select class="name-select">
+                    <option selected="selected">Date</option>
+                    <option>Popular</option>
+                    <option>Easy</option>
+                    <option>Hard</option>
+                </select>
+            </div>
+        </div>
+        <div class="menu-item-aside" style="text-align: left;">
+            <h3 class="name-aside" style="text-align: center;">Instrument</h3>
+            <p class="instrument-aside"><input type="radio" class="instrument-input-radio-aside"
+                                               name="instrument-select-aside" value="1" checked>Piano</p>
+            <p class="instrument-aside"><input type="radio" class="instrument-input-radio-aside"
+                                               name="instrument-select-aside" value="1">Guitar</p>
+            <p class="instrument-aside"><input type="radio" class="instrument-input-radio-aside"
+                                               name="instrument-select-aside" value="1">Woodwinds</p>
+            <p class="instrument-aside"><input type="radio" class="instrument-input-radio-aside"
+                                               name="instrument-select-aside" value="1">Drums</p>
+        </div>
+        <div class="menu-item-aside">
+            <h3 class="name-aside" style="text-align: center;">Upload your sheets</h3>
+            <input placeholder="Sheet name" id="name" class="instrument-aside">
+            <input placeholder="Comment" id="comment" class="instrument-aside">
+            <select id="select-difficulty" style="height: 40px;" class="instrument-aside">
+                <option value="" disabled selected hidden>Difficulty</option>
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+            </select>
+            <select id="select-instrument" style="height: 40px;" class="instrument-aside">
+                <option value="" disabled selected hidden>Instrument</option>
+                <option>Piano</option>
+                <option>Guitar</option>
+                <option>Woodwinds</option>
+                <option>Drums</option>
+            </select>
+            <div class="example-1">
+                <div class="form-group">
+                    <label class="label">
+                        <span class="title">add file</span>
+                        <input type="file" accept="application/pdf">
+                    </label>
+                </div>
+            </div>
+            <button type="button" class="button-upload" id="button-upload" style="margin-right: 30px;">
+                <span class="name-aside" style="color:  #f6f6f6;">UpLoad</span>
+            </button>
+        </div>
+        <div class="menu-item" style="height: 600px;"></div>
+    </aside>
+    <main id="main"></main>
+</div>
+</body>
+</html>
