@@ -5,7 +5,7 @@ plugins {
     id("distribution")
 }
 
-ext{
+ext {
     ktorVersion
 }
 
@@ -17,6 +17,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-html-builder:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("mysql:mysql-connector-java:8.0.22")
 }
 
 application {

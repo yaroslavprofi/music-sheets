@@ -4,109 +4,82 @@ import kotlinx.html.*
 import kotlinx.html.dom.*
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSelectElement
 import org.w3c.xhr.XMLHttpRequest
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
-enum class Instrument {
-    Piano,
-    Guitar,
-    Woodwinds,
-    Drums
-}
-
-enum class Difficulty {
-    Easy,
-    Medium,
-    Hard
-}
-
-val posts = listOf(
-    SheetPost(
-        name = "Chopin wanltz in c# minor",
-        instrument = Instrument.Piano,
-        difficulty = Difficulty.Easy,
-        comment = "OWOWOW kdjflsjdklf lsdkfjlksd  lkjdfscaption"
-    ),
-    SheetPost(
-        name = "Chopin wanltz in c# minor",
-        instrument = Instrument.Piano,
-        difficulty = Difficulty.Easy,
-        comment = "OWOWOW kdjflsjdklf lsdkfjlksd  lkjdfscaption"
-    ),
-    SheetPost(
-        name = "Chopin wanltz in c# minor",
-        instrument = Instrument.Piano,
-        difficulty = Difficulty.Easy,
-        comment = "OWOWOW kdjflsjdklf lsdkfjlksd  lkjdfscaption"
-    ),
-    SheetPost(
-        name = "Chopin wanltz in c# minor",
-        instrument = Instrument.Piano,
-        difficulty = Difficulty.Easy,
-        comment = "OWOWOW kdjflsjdklf lsdkfjlksd  lkjdfscaption"
-    )
+@Serializable
+data class Post(
+    val name: String,
+    val instrument: String,
+    val difficulty: String,
+    val comment: String
 )
+
+fun loadContent() {
+
+    val http = XMLHttpRequest()
+
+    http.open("GET", "/content")
+
+    http.onload = {
+        if (http.status in 200..399) {
+            val parsedJson = Json.decodeFromString<List<Post>>(http.responseText)
+
+            for (post in parsedJson) {
+                document.getElementById("main")!!.prepend {
+                    SheetPost(
+                        name = post.name,
+                        instrument = post.instrument,
+                        difficulty = post.difficulty,
+                        comment = post.comment
+                    ).run { render() }
+                }
+            }
+        }
+    }
+
+    http.send()
+}
+
+fun buttonUploadAddEventListener() {
+    (document.getElementById("button-upload") as HTMLButtonElement).addEventListener(
+        "click", {
+            val inputName = document.getElementById("input-name") as HTMLInputElement
+            val selectInstrument = document.getElementById("select-instrument") as HTMLSelectElement
+            val selectDifficulty = document.getElementById("select-difficulty") as HTMLSelectElement
+            val inputComment = document.getElementById("input-comment") as HTMLInputElement
+
+            if (inputName.value.isEmpty()
+                || selectInstrument.value.isEmpty()
+                || selectDifficulty.value.isEmpty()
+            ) {
+                window.alert("Incorrect imput 'Sheet name' or 'Instrument'/'Difficulty' not selected")
+                return@addEventListener
+            }
+
+            val http = XMLHttpRequest()
+            http.open(
+                "POST", "/upload" +
+                        "?name=${inputName.value}" +
+                        "&instrument=${selectInstrument.value}" +
+                        "&difficulty=${selectDifficulty.value}" +
+                        "&comment=${inputComment.value}"
+            )
+            http.onload = {
+                if (http.status in 200..399) {
+                    window.location.reload()
+                }
+            }
+            http.send("123")
+        }
+    )
+}
 
 fun main() {
     window.onload = {
-        document.head!!.append.apply {
-            title {
-                +"Music Sheets"
-            }
-            link {
-                href = "https://fonts.googleapis.com/icon?family=Material+Icons"
-                rel = "stylesheet"
-            }
-            link {
-                href = "./styles_test.css"
-                rel = "stylesheet"
-            }
-            link {
-                href = "https://fonts.googleapis.com/css2?family=Lobster&display=swap"
-                rel = "stylesheet"
-            }
-            link {
-                href = "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
-                rel = "stylesheet"
-            }
-            link {
-                href = "https://fonts.googleapis.com/css2?family=Pirata+One&display=swap"
-                rel = "stylesheet"
-            }
-            link {
-                href = "https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap"
-                rel = "stylesheet"
-            }
-        }
-
-        document.getElementById("main")!!.append {
-            posts.forEach { it.run { render() } }
-        }
-
-        (document.getElementById("button-upload") as HTMLButtonElement).addEventListener(
-            "click", {
-
-                val input_name = document.getElementById("name") as HTMLInputElement;
-                val input_comment = document.getElementById("comment") as HTMLInputElement;
-
-                val http = XMLHttpRequest()
-                http.open("GET", "/upload?name=${input_name.value}")
-
-                http.onload = {
-                    if (http.status in 200..399) {
-                        val value = http.responseText
-                        window.alert("Uploaded file: $value")
-                        document.getElementById("main")!!.prepend {
-                            SheetPost(
-                                name = value,
-                                instrument = Instrument.Piano,
-                                difficulty = Difficulty.Easy,
-                                comment = "OWOWOW kdjflsjdklf lsdkfjlksd  lkjdfscaption"
-                            ).run { render() }
-                        }
-                    }
-                }
-                http.send()
-            }
-        )
+        loadContent()
+        buttonUploadAddEventListener()
     }
 }

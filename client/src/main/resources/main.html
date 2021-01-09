@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
     <script src="client.js"></script>
-    <link rel="stylesheet" href="styles_test.css">
-    <title>Music Sheet Html</title>
+    <title>Music Sheets</title>
+    <link href="styles_test.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>
@@ -37,21 +42,21 @@
         </div>
         <div class="menu-item-aside">
             <h3 class="name-aside" style="text-align: center;">Upload your sheets</h3>
-            <input placeholder="Sheet name" id="name" class="instrument-aside">
-            <input placeholder="Comment" id="comment" class="instrument-aside">
-            <select id="select-difficulty" style="height: 40px;" class="instrument-aside">
-                <option value="" disabled selected hidden>Difficulty</option>
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Hard</option>
-            </select>
+            <input id="input-name" placeholder="Sheet name" class="instrument-aside">
             <select id="select-instrument" style="height: 40px;" class="instrument-aside">
                 <option value="" disabled selected hidden>Instrument</option>
-                <option>Piano</option>
-                <option>Guitar</option>
-                <option>Woodwinds</option>
-                <option>Drums</option>
+                <option value="Piano">Piano</option>
+                <option value="Guitar">Guitar</option>
+                <option value="Woodwinds">Woodwinds</option>
+                <option value="Drums">Drums</option>
             </select>
+            <select id="select-difficulty" style="height: 40px;" class="instrument-aside">
+                <option value="" disabled selected hidden>Difficulty</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+            <input id="input-comment" placeholder="Comment" class="instrument-aside">
             <div class="example-1">
                 <div class="form-group">
                     <label class="label">
@@ -66,7 +71,9 @@
         </div>
         <div class="menu-item" style="height: 600px;"></div>
     </aside>
-    <main id="main"></main>
+    <main id="main">
+        <!--        info added here by respond-->
+    </main>
 </div>
 </body>
 </html>
