@@ -1,9 +1,13 @@
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.sql.*
+
 
 class SheetsDB {
 
     private val urlMySQL = "jdbc:mysql://localhost:3306/sheets_db?serverTimezone=UTC"
-    private val tableName = "sheets_posts";
+    private val tableName = "sheetsPosts"
     private val user =
     private val password =
 
@@ -15,10 +19,7 @@ class SheetsDB {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver")
             connection = DriverManager.getConnection(urlMySQL, user, password)
-
             createTable()
-            println("create table sheet_posts")
-
 
         } catch (e: SQLException) {
             println(e.message)
@@ -37,6 +38,7 @@ class SheetsDB {
             instrument TEXT NOT NULL,
             difficulty TEXT NOT NULL,
             comment TEXT NOT NULL,
+            file MEDIUMBLOB NOT NULL,
             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY (id)
             );
@@ -48,18 +50,20 @@ class SheetsDB {
         name: String,
         instrument: String,
         difficulty: String,
-        comment: String
+        comment: String,
+        fileStream: FileInputStream
     ) {
         val statement = connection!!.prepareStatement(
             """
-            INSERT INTO $tableName (name, instrument, difficulty, comment) Values(?, ?, ?, ?)
+            INSERT INTO $tableName (name, instrument, difficulty, comment, file) Values(?, ?, ?, ?, ?)
             """.trimIndent()
         )
         statement.setString(1, name)
         statement.setString(2, instrument)
         statement.setString(3, difficulty)
         statement.setString(4, comment)
-        statement.execute()
+        statement.setBlob(5, fileStream)
+        statement.executeUpdate()
     }
 
     fun getPosts(): String {
@@ -68,17 +72,41 @@ class SheetsDB {
             """
 SELECT JSON_ARRAYAGG(
                JSON_MERGE(
+                       json_object('id', id),
                        json_object('name', name),
                        json_object('instrument', instrument),
                        json_object('difficulty', difficulty),
                        json_object('comment', comment)
                    )
            )
-FROM sheets_posts;
+FROM $tableName;
             """.trimIndent()
         )
         result.next()
-        val ans = result.getString(1)
-        return ans ?: ""
+        return result.getString(1) ?: ""
+    }
+
+    fun getFile(id: String): File? {
+        val result = connection!!.createStatement().executeQuery(
+            """
+                SELECT name,file FROM sheetsposts WHERE id=$id;
+            """.trimIndent()
+        )
+        if (result.next()) {
+            val filename = "${result.getString(1)}.pdf"
+            val blobStream = result.getBlob(2).binaryStream
+            val fos =
+                FileOutputStream(filename)
+            var temp = blobStream.read()
+            while (temp != -1) {
+                fos.write(temp)
+                temp = blobStream.read()
+            }
+
+            blobStream.close()
+            fos.close()
+            return File(filename)
+        }
+        return null
     }
 }
