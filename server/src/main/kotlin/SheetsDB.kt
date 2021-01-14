@@ -3,46 +3,37 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.sql.*
 
+private val properties = java.util.Properties()
 
 class SheetsDB {
 
-    private val urlMySQL = "jdbc:mysql://localhost:3306/sheets_db?serverTimezone=UTC"
-    private val tableName = "sheetsPosts"
-    private val user =
-    private val password =
-
-
-    private var connection: Connection? = null
-
+    private val tableName: String
+    private val password: String
+    private val user: String
+    private val url: String
 
     init {
+        properties.load(FileInputStream("db.properties"))
         try {
             Class.forName("com.mysql.cj.jdbc.Driver")
-            connection = DriverManager.getConnection(urlMySQL, user, password)
-            createTable()
-
         } catch (e: SQLException) {
             println(e.message)
             e.stackTrace
         }
+        tableName = properties.getProperty("tableName")
+        user = properties.getProperty("user")
+        password = properties.getProperty("password")
+        url = "jdbc:mysql://" +
+                properties.getProperty("dbPath") +
+                ":${properties.getProperty("port")}" +
+                "/${properties.getProperty("dbName")}"
     }
 
-    private fun createTable() {
-        val table = connection!!.createStatement()
-        table.execute(
-            """               
-            CREATE TABLE IF NOT EXISTS $tableName
-            (
-            id BIGINT AUTO_INCREMENT NOT NULL,
-            name TEXT NOT NULL,
-            instrument TEXT NOT NULL,
-            difficulty TEXT NOT NULL,
-            comment TEXT NOT NULL,
-            file MEDIUMBLOB NOT NULL,
-            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-            PRIMARY KEY (id)
-            );
-            """
+    private fun createConnection(): Connection {
+        return DriverManager.getConnection(
+            url,
+            user,
+            password
         )
     }
 
@@ -53,7 +44,9 @@ class SheetsDB {
         comment: String,
         fileStream: FileInputStream
     ) {
-        val statement = connection!!.prepareStatement(
+        val connection = createConnection()
+
+        val statement = connection.prepareStatement(
             """
             INSERT INTO $tableName (name, instrument, difficulty, comment, file) Values(?, ?, ?, ?, ?)
             """.trimIndent()
@@ -64,11 +57,14 @@ class SheetsDB {
         statement.setString(4, comment)
         statement.setBlob(5, fileStream)
         statement.executeUpdate()
+
+        connection.close()
     }
 
     fun getPosts(): String {
-        val table = connection!!.createStatement()
-        val result = table.executeQuery(
+        val connection = createConnection()
+
+        val result = connection.createStatement().executeQuery(
             """
 SELECT JSON_ARRAYAGG(
                JSON_MERGE(
@@ -83,18 +79,25 @@ FROM $tableName;
             """.trimIndent()
         )
         result.next()
-        return result.getString(1) ?: ""
+        val value = result.getString(1) ?: ""
+
+        connection.close()
+
+        return value
     }
 
     fun getFile(id: String): File? {
-        val result = connection!!.createStatement().executeQuery(
+        val connection = createConnection()
+
+        val result = connection.createStatement().executeQuery(
             """
-                SELECT name,file FROM sheetsposts WHERE id=$id;
+                SELECT name,file FROM $tableName WHERE id=$id;
             """.trimIndent()
         )
         if (result.next()) {
             val filename = "${result.getString(1)}.pdf"
             val blobStream = result.getBlob(2).binaryStream
+
             val fos =
                 FileOutputStream(filename)
             var temp = blobStream.read()
@@ -103,8 +106,11 @@ FROM $tableName;
                 temp = blobStream.read()
             }
 
+            connection.close()
+
             blobStream.close()
             fos.close()
+
             return File(filename)
         }
         return null

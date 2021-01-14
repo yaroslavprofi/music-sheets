@@ -15,9 +15,9 @@ class SheetPost(
 
     fun TagConsumer<HTMLElement>.render() {
         article(classes = "sheet-example") {
-            img { src = "test_img.jpg" }
             div(classes = "sheet-info") {
                 a(classes = "link", href = "/download?id=${this@SheetPost.id}") {
+                    img { src = "test_img.jpg" }
                     type = "download"
                     span(classes = "name") { +name }
                 }

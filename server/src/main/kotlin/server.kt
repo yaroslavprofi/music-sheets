@@ -1,5 +1,3 @@
-@file:Suppress("BlockingMethodInNonBlockingContext")
-
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
@@ -10,14 +8,14 @@ import io.ktor.routing.*
 import java.io.FileInputStream
 
 fun Application.main() {
-
     val db = SheetsDB()
 
     routing {
 
         static("/") {
             resources("/")
-            default("build/resources/main/main.html")
+            default("client/main.html")
+//            default("build/resources/main/main.html")           //for Intellij Idea
         }
 
         get("/content") {
